@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
@@ -65,6 +66,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Counts floors from air-pressure changes.",
         signals = "BAROMETER",
         screen = { onBack -> FloorClimbScreen(onBack) },
+    ),
+    Feature(
+        id = "compass",
+        title = "Compass",
+        tagline = "A needle that points to magnetic north.",
+        signals = "MAGNETOMETER",
+        screen = { onBack -> CompassScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
