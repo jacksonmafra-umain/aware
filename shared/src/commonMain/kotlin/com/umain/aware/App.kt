@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.light.AutoDarkModeScreen
+import com.umain.aware.feature.network.SmartDownloadScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
 import com.umain.aware.feature.trip.TripTrackerScreen
@@ -89,6 +90,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Dims the page when the room gets dark.",
         signals = "LIGHT",
         screen = { onBack -> AutoDarkModeScreen(onBack) },
+    ),
+    Feature(
+        id = "network",
+        title = "Smart download",
+        tagline = "HD on Wi-Fi, SD on cellular, paused offline.",
+        signals = "CONNECTIVITY + ACTIVE_NETWORK",
+        screen = { onBack -> SmartDownloadScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
