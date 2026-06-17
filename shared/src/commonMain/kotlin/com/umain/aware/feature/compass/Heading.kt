@@ -21,5 +21,16 @@ object Heading {
         return CARDINALS[index % 8]
     }
 
+    /**
+     * Eases [current] toward [target] by [alpha] (0..1) along the shortest arc, so the needle
+     * doesn't spin the long way around when the heading wraps past 0°/360°. Returns a value in
+     * [0, 360).
+     */
+    fun smoothedTowards(current: Float, target: Float, alpha: Float): Float {
+        // shortest signed delta in (-180, 180]
+        val delta = (((target - current) % 360f) + 540f) % 360f - 180f
+        return ((current + delta * alpha) % 360f + 360f) % 360f
+    }
+
     private val CARDINALS = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
 }

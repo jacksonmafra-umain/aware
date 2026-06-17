@@ -30,4 +30,19 @@ class HeadingTest {
         assertEquals("S", Heading.cardinal(180f))
         assertEquals("W", Heading.cardinal(270f))
     }
+
+    @Test
+    fun smoothing_takes_the_shortest_arc_across_zero() {
+        // From 350° toward 10° should move forward through 0° (to ~352°), not backward.
+        val next = Heading.smoothedTowards(current = 350f, target = 10f, alpha = 0.5f)
+        // shortest delta is +20°, half of that is +10° => 360 -> 0
+        assertEquals(0f, next, absoluteTolerance = 0.01f)
+        assertEquals(true, next in 0f..360f)
+    }
+
+    @Test
+    fun smoothing_eases_partway_toward_target() {
+        val next = Heading.smoothedTowards(current = 0f, target = 100f, alpha = 0.25f)
+        assertEquals(25f, next, absoluteTolerance = 0.01f)
+    }
 }
