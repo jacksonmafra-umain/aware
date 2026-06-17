@@ -2,6 +2,7 @@ package com.umain.aware.feature.compass
 
 import kotlin.math.PI
 import kotlin.math.atan2
+import kotlin.math.sqrt
 
 /**
  * Converts a magnetometer reading into a compass heading in degrees, normalised to [0, 360).
