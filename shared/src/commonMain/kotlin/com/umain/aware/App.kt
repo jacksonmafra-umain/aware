@@ -29,6 +29,7 @@ import com.umain.aware.feature.light.AutoDarkModeScreen
 import com.umain.aware.feature.locale.LocaleAdaptScreen
 import com.umain.aware.feature.network.SmartDownloadScreen
 import com.umain.aware.feature.privacy.PrivacyShieldScreen
+import com.umain.aware.feature.rotate.AutoRotateScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
 import com.umain.aware.feature.tilt.TiltParallaxScreen
@@ -129,6 +130,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "A hero card that leans as you tilt the phone.",
         signals = "GYROSCOPE",
         screen = { onBack -> TiltParallaxScreen(onBack) },
+    ),
+    Feature(
+        id = "rotate",
+        title = "Auto-rotate video",
+        tagline = "Goes fullscreen in landscape, inline in portrait.",
+        signals = "DEVICE_ORIENTATION",
+        screen = { onBack -> AutoRotateScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
