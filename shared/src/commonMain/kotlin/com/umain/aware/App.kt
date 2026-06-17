@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.umain.aware.feature.shake.ShakeToReportScreen
 import org.koin.compose.KoinContext
 
 /**
@@ -42,6 +43,13 @@ data class Feature(
  * the gallery's order.
  */
 fun awareFeatures(): List<Feature> = listOf(
+    Feature(
+        id = "shake",
+        title = "Shake to report",
+        tagline = "Shake the phone to file a bug report.",
+        signals = "ACCELEROMETER",
+        screen = { onBack -> ShakeToReportScreen(onBack) },
+    ),
     // feature entries are registered here, one per feature.
 )
 
