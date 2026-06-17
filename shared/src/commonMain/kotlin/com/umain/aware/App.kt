@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umain.aware.feature.shake.ShakeToReportScreen
+import com.umain.aware.feature.steps.StepGoalScreen
 import org.koin.compose.KoinContext
 
 /**
@@ -49,6 +50,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Shake the phone to file a bug report.",
         signals = "ACCELEROMETER",
         screen = { onBack -> ShakeToReportScreen(onBack) },
+    ),
+    Feature(
+        id = "steps",
+        title = "Daily step goal",
+        tagline = "Track steps since you opened the app against a goal.",
+        signals = "STEP_COUNTER + STEP_DETECTOR",
+        screen = { onBack -> StepGoalScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
