@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umain.aware.feature.battery.BatterySaverScreen
+import com.umain.aware.feature.ble.NearbyDevicesScreen
 import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.light.AutoDarkModeScreen
@@ -161,6 +162,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "A custom volume bar with a 'too loud' warning.",
         signals = "VOLUME",
         screen = { onBack -> VolumeHudScreen(onBack) },
+    ),
+    Feature(
+        id = "ble",
+        title = "Nearby devices",
+        tagline = "Connected vs in-range Bluetooth devices.",
+        signals = "BLE_CONNECTIONS + BLE_DISCOVERS",
+        screen = { onBack -> NearbyDevicesScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
