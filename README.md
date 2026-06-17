@@ -1,124 +1,67 @@
 # Aware
 
-**Aware** is a Compose Multiplatform demo (Android + iOS) that showcases the
-[KSensor](https://github.com/ShadAdman/KSensor) library by framing each sensor and device state
-around the everyday **product feature** it powers — not around the raw reading. The gallery ships
-sixteen self-contained demos that together exercise every sensor and every state type the library
-exposes.
+Sixteen everyday phone features, each rebuilt around the sensor that does the actual work — a demo
+for the KSensor library. Mostly it's proof that your phone knows more about you than you'd like:
+what it's near, how it's being held, how much light you're sitting in, and precisely how few steps
+you've managed today.
 
-## Why "Aware"
+Android and iOS from a single codebase, because writing the whole thing twice is a punishment, not
+an architecture.
 
-The app is about a device being *aware* of its physical and system context — motion, light, air
-pressure, location, network, battery, locale, nearby radios — and turning that awareness into a
-useful product behaviour. Every screen answers "what does this signal let the product *do*?": shake
-to file a report, dim the page when the room goes dark, pause playback when the phone is pocketed,
-hide a bank balance the moment the app loses focus.
+## The demos
 
-## The sixteen features
+- **Shake to report** — accelerometer. Shake the phone like you're trying to wake it up; it files a
+  bug report. Finally, a productive outlet for the rage.
 
-| Feature | Product behaviour | Signal(s) |
-|---|---|---|
-| Shake to report | Shake the phone to file a bug report | `ACCELEROMETER` |
-| Daily step goal | Steps since you opened the app vs a goal | `STEP_COUNTER` + `STEP_DETECTOR` |
-| Floors climbed | Counts floors from air-pressure change | `BAROMETER` |
-| Compass | A needle pointing to magnetic north | `MAGNETOMETER` |
-| Trip tracker | Distance travelled between GPS fixes | `LOCATION` sensor + state |
-| Tilt parallax | A hero card that leans as you tilt | `GYROSCOPE` |
-| Auto-rotate video | Fullscreen in landscape, inline in portrait | `DEVICE_ORIENTATION` |
-| Pocket mode | Pauses playback when covered | `PROXIMITY` |
-| Auto dark mode | Dims the page in low light (with hysteresis) | `LIGHT` |
-| Signature pad | Rebuilds your strokes from touch gestures | `TOUCH_GESTURES` |
-| Smart download | HD on Wi-Fi, SD on cellular, paused offline | `CONNECTIVITY` + `ACTIVE_NETWORK` |
-| Battery saver | Saver < 20%, sync while charging, overheat warning | `BATTERY` |
-| Privacy shield | Hides a balance when backgrounded/locked/screen-off | `APP_VISIBILITY` + `LOCK` + `SCREEN_STATE` |
-| Volume HUD | Custom volume bar with a "too loud" hint | `VOLUME` |
-| Locale adapt | Currency symbol and text direction follow the region | `LOCALE` |
-| Nearby devices | Connected vs in-range Bluetooth devices | `BLE_CONNECTIONS` + `BLE_DISCOVERS` |
+- **Daily step goal** — step counter and detector. Counts your steps toward a goal you won't reach.
+  The little "walking now" indicator is likely the most exercise it'll witness.
 
-## Architecture
+- **Floors climbed** — barometer. Counts floors from changes in air pressure. It cannot tell that
+  you took the lift, and, in fairness, neither can your conscience.
 
-```
-com.umain.aware
-├── core/      SensorSource/StateSource abstractions, KSensor wrappers, Collect helpers, UI chrome
-├── di/        one Koin module binding the abstractions to the KSensor implementations
-├── feature/   one package per feature: a pure "deriver" + a dumb Compose screen
-└── App.kt     the gallery registry + one-level back navigation
-```
+- **Compass** — magnetometer. It points north. Genuinely revolutionary in 1300; these days it
+  mostly comes alive the moment you lose signal somewhere green.
 
-The design follows a few non-negotiable principles:
+- **Trip tracker** — GPS. Adds up how far you've travelled between location fixes. Ideal for a run,
+  or for confirming you walked to the fridge and back with real conviction.
 
-**DRY.** The register/collect/unregister lifecycle, the platform badge, and the metric/card chrome
-are written once in `core` (`Collect.kt`, `Ui.kt`) and reused by every screen. No screen
-re-implements sensor plumbing.
+- **Tilt marble** — accelerometer. Roll a marble around a box by tilting the phone. Decades of
+  sensor research, and we've lovingly recreated the toy from a Christmas cracker.
 
-**SOLID.**
-- *SRP* — each feature is split into a pure logic unit (a "deriver" such as `ShakeDetector`,
-  `FloorCounter`, `Heading`, `DistanceAccumulator`, `ThemeDecider`, `DownloadPolicy`,
-  `BatteryPolicy`, `ShieldPolicy`, `RegionFormat`) and a dumb Compose screen that renders it.
-  Derivers contain **zero Compose, zero KSensor, zero platform code** — they take plain primitives,
-  which is also why they are trivially unit-tested.
-- *DIP* — screens and derivers depend only on the `SensorSource` / `StateSource` abstractions and on
-  Aware's own domain types (`SensorType`, `Reading`, `StateReading`, …), never on the concrete
-  `KSensor` / `KState` objects. The library is hidden behind those interfaces.
-- *OCP* — adding a feature means adding a deriver + a screen + **one** entry in `awareFeatures()`. No
-  existing feature is edited.
-- *ISP* — `SensorSource` and `StateSource` are separate, so a screen that only needs states never
-  transitively depends on sensor types.
-- *LSP* — `FakeSensorSource` / `FakeStateSource` (in `commonTest`) are drop-in substitutes for the
-  real sources and honour the same lifecycle contract.
+- **Auto-rotate video** — device orientation. Goes fullscreen when you turn the phone sideways. The
+  one time rotation does exactly what you wanted, unlike every other moment of your day.
 
-**Koin — justified, not decorative.** `KSensor`/`KState` are global objects, so DI is not needed to
-*reach* them. It earns its place by satisfying DIP: `di/CoreModule.kt` is the single place that binds
-`SensorSource → KSensorSource` and `StateSource → KStateSource`; screens `koinInject()` the
-abstractions, and tests swap the bindings for the fakes. One module is enough — we did not
-over-modularise.
+- **Pocket mode** — proximity. Cover the top of the phone and playback pauses. The same trick that
+  mutes you mid-sentence on every call you've ever been on.
 
-**No leaked listeners.** `KSensorSource`/`KStateSource` return cold flows that register on first
-collection and `unregister`/`removeObserver` in `onCompletion`. Screens collect via `CollectSensors`
-/`CollectStates`, which are scoped to composition, so leaving a screen cancels the collection and
-provably tears the subscription down. `SourceLifecycleTest` asserts this register-once /
-unregister-on-cancel contract against the fakes.
+- **Auto dark mode** — light sensor. Dims the page when the room goes dark, with a buffer so it
+  doesn't flicker like a cheap disco. For reading in bed and ruining your sleep responsibly.
 
-## Testing
+- **Signature pad** — touch. Sign with your finger. As legally binding, and as legible, as every
+  signature you have ever produced.
 
-Every deriver has `commonTest` coverage feeding inputs directly (no device needed): `ShakeDetector`
-threshold + cooldown, `StepSession` baselining, `FloorCounter` conversion, `Heading` wrap-around,
-`DistanceAccumulator` against a known two-point distance, `ThemeDecider` hysteresis, and the
-`DownloadPolicy` / `BatteryPolicy` / `ShieldPolicy` / `RegionFormat` decision/mapping tables. Screens
-are not unit-tested. `SourceLifecycleTest` covers the source lifecycle via the fakes.
+- **Smart download** — connectivity and active network. HD on Wi-Fi, SD on mobile data, nothing at
+  all offline. It respects your data plan rather more than your provider does.
 
-## KSensor caveats
+- **Battery saver** — battery. Flips to saver mode under 20%, runs sync while charging, and warns
+  you when it's overheating. It will not, however, stop you watching one more video at 3%.
 
-A few things about the library are worth recording, because they shaped the code:
+- **Privacy shield** — app visibility, lock and screen state. Hides your bank balance the instant
+  the app loses focus. It can protect the number. It cannot protect you from the number.
 
-1. **The Maven coordinate and the Kotlin package are unrelated.** The dependency is
-   `io.github.shadadman:KSensor:3.80.0` (GitHub user `ShadAdman`), but the public types live under
-   the package root **`org.kmp.ksensor`** — split into `org.kmp.ksensor.sensor`,
-   `org.kmp.ksensor.state`, and `org.kmp.ksensor.permission`. (There is also an older, similarly
-   named publication, `io.github.shadmanadman:KSensor`, which is a different artifact — Aware uses
-   `shadadman` `3.80.0`.) Because the package isn't obvious from the coordinate, every KSensor
-   import is confined to exactly three files — `core/KSensorSource.kt`, `core/KStateSource.kt`, and
-   `core/LocationPermission.kt`, each behind a clearly marked import block. Nothing else in the app
-   references a KSensor type, because the wrappers map the library's models onto Aware's own
-   `Reading` / `StateReading` domain types.
+- **Volume HUD** — volume. A custom bar with a "too loud" warning past 80%. You'll ignore it now and
+  complain about your ears later, on schedule.
 
-2. **The data models are nested, and a few names differ from the README.** Sensor/state payloads are
-   nested in sealed classes (`SensorData.Accelerometer`, `StateData.BatteryStatus`, …), `Location`
-   exposes `latitude/longitude/altitude`, the screen-state enum constant is `StateType.SCREEN`, the
-   locale model is `StateData.LocaleStatus`, and `PermissionStatus` is an enum with `GRANTED` /
-   `DENIED` / `SHOW_RATIONAL` / `UNKNOWN`. The wrappers absorb all of this so the rest of the app
-   only ever sees Aware's domain types.
+- **Locale adapt** — locale. Swaps the currency symbol and flips the layout for right-to-left
+  languages based on your region. Quietly competent, and a little smug about it.
 
-3. **The `*.Error` shape.** `SensorUpdate.Error` / `StateUpdate.Error` each carry a single
-   `exception: Exception`. The source layer forwards `exception.message` as a generic
-   `SensorUpdate.Error` / `StateUpdate.Error` message. Screens may ignore them, but the abstraction
-   does not pretend errors don't happen.
+- **Nearby devices** — Bluetooth. Lists devices connected versus merely in range. A "find my
+  headphones" that still won't find the one that's under the sofa.
 
-## Building
+## Running it
 
 - Android: `./gradlew :androidApp:assembleDebug`
-- iOS: open `iosApp/` in Xcode and run.
+- iOS: open `iosApp/` in Xcode and run it.
 
-Targets: Android + iOS from a single `commonMain`, Material 3. The toolchain follows the project
-scaffold (Kotlin 2.4 / Compose Multiplatform 1.11 / AGP 9). KSensor is built with Kotlin 2.2, which a
-newer Kotlin compiler consumes without issue. A JDK 17+ is required to run Gradle.
+Use a real device for most of this. Emulators have no barometer, cannot be shaken, and have never
+climbed a flight of stairs in their lives.
