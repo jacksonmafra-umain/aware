@@ -1,49 +1,122 @@
 package com.umain.aware
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.unit.dp
+import org.koin.compose.KoinContext
 
-import aware.shared.generated.resources.Res
-import aware.shared.generated.resources.compose_multiplatform
+/**
+ * One entry in the Aware gallery. A feature is fully described by its metadata plus a [screen]
+ * factory that takes an `onBack` callback. Adding a feature means adding its `Feature` to
+ * [awareFeatures] — existing features are never edited (OCP).
+ */
+data class Feature(
+    val id: String,
+    val title: String,
+    val tagline: String,
+    val signals: String,
+    val screen: @Composable (onBack: () -> Unit) -> Unit,
+)
 
+/**
+ * The single registry of demos. Each feature appends exactly one entry here; the list's order is
+ * the gallery's order.
+ */
+fun awareFeatures(): List<Feature> = listOf(
+    // feature entries are registered here, one per feature.
+)
+
+/**
+ * App root: runs inside a [KoinContext] so screens can `koinInject()` the source abstractions,
+ * then drives a trivial one-level back stack — the gallery, or the currently open feature.
+ */
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+        KoinContext {
+            var selected by remember { mutableStateOf<Feature?>(null) }
+            val features = remember { awareFeatures() }
+
+            when (val current = selected) {
+                null -> Gallery(features = features, onOpen = { selected = it })
+                else -> current.screen { selected = null }
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+        }
+    }
+}
+
+@Composable
+private fun Gallery(features: List<Feature>, onOpen: (Feature) -> Unit) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(vertical = 24.dp),
+        ) {
+            item {
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                    Text("Aware", style = MaterialTheme.typography.displaySmall)
+                    Text(
+                        "Everyday product features, each powered by a device sensor or state via KSensor.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
+            items(features, key = { it.id }) { feature ->
+                FeatureCard(feature = feature, onClick = { onOpen(feature) })
+            }
+            if (features.isEmpty()) {
+                item {
+                    Text(
+                        "No demos registered yet.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeatureCard(feature: Feature, onClick: () -> Unit) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Text(feature.title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                feature.tagline,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                feature.signals,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 6.dp),
+            )
         }
     }
 }
