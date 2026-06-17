@@ -12,8 +12,12 @@ import org.kmp.ksensor.sensor.SensorType as KSensorType
 import org.kmp.ksensor.sensor.SensorUpdate as KSensorUpdate
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+
+private const val TAG = "KSensorSource"
 
 /**
  * The real [SensorSource]: wraps the global `KSensor` object.
@@ -31,7 +35,17 @@ class KSensorSource : SensorSource {
             else KSensor.registerSensors(ksTypes)
         return upstream
             .map { it.toDomain() }
-            .onCompletion { KSensor.unregisterSensors(ksTypes) }
+            .onStart { AwareLog.d(TAG, "registerSensors(types=$types, intervalMs=$intervalMs)") }
+            .catch { cause ->
+                // Any upstream failure (e.g. a missing runtime permission) becomes a handled
+                // error instead of crashing the collecting screen.
+                AwareLog.e(TAG, "sensor stream failed for $types", cause)
+                emit(SensorUpdate.Error(cause.message ?: cause.toString()))
+            }
+            .onCompletion { cause ->
+                AwareLog.d(TAG, "unregisterSensors($types)" + (cause?.let { " after $it" } ?: ""))
+                KSensor.unregisterSensors(ksTypes)
+            }
     }
 }
 
@@ -67,5 +81,8 @@ private fun KSensorUpdate.toDomain(): SensorUpdate = when (this) {
         }
         SensorUpdate.Data(reading, platformType.name, timestamp)
     }
-    is KSensorUpdate.Error -> SensorUpdate.Error(exception.message ?: exception.toString())
+    is KSensorUpdate.Error -> {
+        AwareLog.e(TAG, "KSensor reported an error", exception)
+        SensorUpdate.Error(exception.message ?: exception.toString())
+    }
 }

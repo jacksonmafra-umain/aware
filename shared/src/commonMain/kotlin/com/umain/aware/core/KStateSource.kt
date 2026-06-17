@@ -7,8 +7,12 @@ import org.kmp.ksensor.state.StateType as KStateType
 import org.kmp.ksensor.state.StateUpdate as KStateUpdate
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+
+private const val TAG = "KStateSource"
 
 /**
  * The real [StateSource]: wraps the global `KState` object.
@@ -22,7 +26,17 @@ class KStateSource : StateSource {
         val ksTypes = types.map { it.toKState() }
         return KState.addObserver(ksTypes)
             .map { it.toDomain() }
-            .onCompletion { KState.removeObserver(ksTypes) }
+            .onStart { AwareLog.d(TAG, "addObserver(types=$types)") }
+            .catch { cause ->
+                // e.g. ACCESS_NETWORK_STATE / Bluetooth permission missing — surface as a handled
+                // error instead of crashing the collecting screen.
+                AwareLog.e(TAG, "state stream failed for $types", cause)
+                emit(StateUpdate.Error(cause.message ?: cause.toString()))
+            }
+            .onCompletion { cause ->
+                AwareLog.d(TAG, "removeObserver($types)" + (cause?.let { " after $it" } ?: ""))
+                KState.removeObserver(ksTypes)
+            }
     }
 }
 
@@ -71,7 +85,10 @@ private fun KStateUpdate.toDomain(): StateUpdate = when (this) {
         }
         StateUpdate.Data(reading, platformType.name)
     }
-    is KStateUpdate.Error -> StateUpdate.Error(exception.message ?: exception.toString())
+    is KStateUpdate.Error -> {
+        AwareLog.e(TAG, "KState reported an error", exception)
+        StateUpdate.Error(exception.message ?: exception.toString())
+    }
 }
 
 private fun StateData.BatteryStatus.ChargingState.toDomain(): ChargingState = when (this) {
