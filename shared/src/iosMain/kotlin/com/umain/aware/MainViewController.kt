@@ -2,15 +2,18 @@ package com.umain.aware
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.umain.aware.di.initKoin
-import org.koin.core.context.GlobalContext
+
+private var koinStarted = false
 
 /**
- * iOS entry point. Starts Koin once (guarded, since the view controller may be recreated) and then
- * hands off to the shared `App()`.
+ * iOS entry point. Starts Koin exactly once (the view controller may be created more than once)
+ * and then hands off to the shared `App()`. A plain flag is used instead of Koin's GlobalContext,
+ * which isn't available on the Kotlin/Native target.
  */
 fun MainViewController() = ComposeUIViewController {
-    if (GlobalContext.getOrNull() == null) {
+    if (!koinStarted) {
         initKoin()
+        koinStarted = true
     }
     App()
 }

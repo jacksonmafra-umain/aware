@@ -11,27 +11,27 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		714A4B6DD0547E32DA45AFBF /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		714A4B6DD0547E32DA45AFBF /* Exceptions for "iosApp" folder in "Aware" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 7F933FDB02D9E94195F2D439 /* iosApp */;
+			target = 7F933FDB02D9E94195F2D439 /* Aware */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		B2138A5BCE7AD9C47F55953F /* iosApp */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				714A4B6DD0547E32DA45AFBF /* Exceptions for "iosApp" folder in "iosApp" target */,
-			);
-			path = iosApp;
-			sourceTree = "<group>";
-		};
 		1C416674D3F86A51D6B23C04 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Configuration;
+			sourceTree = "<group>";
+		};
+		B2138A5BCE7AD9C47F55953F /* iosApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				714A4B6DD0547E32DA45AFBF /* Exceptions for "iosApp" folder in "Aware" target */,
+			);
+			path = iosApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -47,6 +47,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4CAC4E70C6A276A6661537A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E870A20A09F83023D19E4A42 /* Aware.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		9A31EDA156730D1939B16BFB = {
 			isa = PBXGroup;
 			children = (
@@ -56,20 +64,12 @@
 			);
 			sourceTree = "<group>";
 		};
-		4CAC4E70C6A276A6661537A4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E870A20A09F83023D19E4A42 /* Aware.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7F933FDB02D9E94195F2D439 /* iosApp */ = {
+		7F933FDB02D9E94195F2D439 /* Aware */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1E6E444A4122A58FF9A7D310 /* Build configuration list for PBXNativeTarget "iosApp" */;
+			buildConfigurationList = 1E6E444A4122A58FF9A7D310 /* Build configuration list for PBXNativeTarget "Aware" */;
 			buildPhases = (
 				4737F78EFBD61571EF62EEBC /* Compile Kotlin Framework */,
 				F259E77C15408E77470A27E7 /* Sources */,
@@ -83,7 +83,7 @@
 			fileSystemSynchronizedGroups = (
 				B2138A5BCE7AD9C47F55953F /* iosApp */,
 			);
-			name = iosApp;
+			name = Aware;
 			packageProductDependencies = (
 			);
 			productName = iosApp;
@@ -105,7 +105,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B1CB51ACA231EF701EAC6F2F /* Build configuration list for PBXProject "iosApp" */;
+			buildConfigurationList = B1CB51ACA231EF701EAC6F2F /* Build configuration list for PBXProject "Aware" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -119,7 +119,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7F933FDB02D9E94195F2D439 /* iosApp */,
+				7F933FDB02D9E94195F2D439 /* Aware */,
 			);
 		};
 /* End PBXProject section */
@@ -290,34 +290,6 @@
 			};
 			name = Release;
 		};
-		4C6EAAF18AD3A0589F95A7C6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
-				DEVELOPMENT_TEAM = "${TEAM_ID}";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		4C57BA893DF2A3D3A8897D31 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -327,7 +299,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
-				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				DEVELOPMENT_TEAM = B62NKLG448;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
@@ -336,6 +308,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -346,23 +319,52 @@
 			};
 			name = Release;
 		};
+		4C6EAAF18AD3A0589F95A7C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_TEAM = B62NKLG448;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B1CB51ACA231EF701EAC6F2F /* Build configuration list for PBXProject "iosApp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0E2F0B1DA5736351A114617F /* Debug */,
-				11FFF0EB0C877A407A3FB96A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		1E6E444A4122A58FF9A7D310 /* Build configuration list for PBXNativeTarget "iosApp" */ = {
+		1E6E444A4122A58FF9A7D310 /* Build configuration list for PBXNativeTarget "Aware" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C6EAAF18AD3A0589F95A7C6 /* Debug */,
 				4C57BA893DF2A3D3A8897D31 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B1CB51ACA231EF701EAC6F2F /* Build configuration list for PBXProject "Aware" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0E2F0B1DA5736351A114617F /* Debug */,
+				11FFF0EB0C877A407A3FB96A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
