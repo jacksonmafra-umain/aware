@@ -1,6 +1,7 @@
 package com.umain.aware.feature.pad
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +80,7 @@ fun SignaturePadScreen(onBack: () -> Unit) {
             color = MaterialTheme.colorScheme.surfaceVariant,
             shape = MaterialTheme.shapes.medium,
         ) {
-            Canvas(modifier = Modifier.fillMaxWidth()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
                 val all = strokes.flatten()
                 if (all.isEmpty()) return@Canvas
                 val minX = all.minOf { it.x }
