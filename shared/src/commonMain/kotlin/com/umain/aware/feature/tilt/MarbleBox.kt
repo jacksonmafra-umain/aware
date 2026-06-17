@@ -11,8 +11,8 @@ package com.umain.aware.feature.tilt
  * @param wallBounce fraction of speed kept when hitting a wall.
  */
 class MarbleBox(
-    private val accelScale: Float = 25f,
-    private val friction: Float = 0.9f,
+    private val accelScale: Float = 12f,
+    private val friction: Float = 0.88f,
     private val wallBounce: Float = 0.5f,
 ) {
     var x: Float = 0.5f

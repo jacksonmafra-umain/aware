@@ -24,13 +24,15 @@ import com.umain.aware.core.SensorSource
 import com.umain.aware.core.SensorType
 import com.umain.aware.core.SensorUpdate
 import org.koin.compose.koinInject
+import kotlin.math.sqrt
 import kotlin.time.TimeSource
 
 /**
- * Tilt marble: a marble rolls around inside the card as you tilt the phone, driven by the
- * accelerometer's gravity vector and simulated by [MarbleBox]. Screen-space gravity is (-x, y):
- * device +x is screen-right, device +y is screen-up, and the accelerometer reads the opposite of
- * gravity — flip a sign here if it ever rolls the wrong way.
+ * Tilt marble: a marble rolls around inside the card as you tilt the phone, simulated by
+ * [MarbleBox]. We feed it the *direction* of gravity (each axis over the total magnitude), which is
+ * the sine of the tilt and runs 0→1 across the full tilt — unit-independent, so it behaves the same
+ * regardless of how KSensor normalises the raw accelerometer. Screen-space mapping is (-x, y);
+ * device +x is screen-right and +y is screen-up, so flip a sign here if it ever rolls the wrong way.
  */
 @Composable
 fun MarbleScreen(onBack: () -> Unit) {
@@ -49,12 +51,15 @@ fun MarbleScreen(onBack: () -> Unit) {
             platform = update.platform
             val r = update.reading
             if (r is Reading.Accelerometer) {
-                val now = clock.elapsedNow().inWholeMilliseconds
-                val dt = if (lastMs == 0L) 0.016f else (now - lastMs) / 1000f
-                lastMs = now
-                marble.onTilt(tiltX = -r.x, tiltY = r.y, dtSeconds = dt)
-                ballX = marble.x
-                ballY = marble.y
+                val magnitude = sqrt(r.x * r.x + r.y * r.y + r.z * r.z)
+                if (magnitude > 1e-4f) {
+                    val now = clock.elapsedNow().inWholeMilliseconds
+                    val dt = if (lastMs == 0L) 0.016f else (now - lastMs) / 1000f
+                    lastMs = now
+                    marble.onTilt(tiltX = -r.x / magnitude, tiltY = r.y / magnitude, dtSeconds = dt)
+                    ballX = marble.x
+                    ballY = marble.y
+                }
             }
         }
     }
