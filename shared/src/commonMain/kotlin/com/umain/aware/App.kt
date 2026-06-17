@@ -39,7 +39,7 @@ import com.umain.aware.feature.privacy.PrivacyShieldScreen
 import com.umain.aware.feature.rotate.AutoRotateScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
-import com.umain.aware.feature.tilt.TiltParallaxScreen
+import com.umain.aware.feature.tilt.MarbleScreen
 import com.umain.aware.feature.trip.TripTrackerScreen
 import com.umain.aware.feature.volume.VolumeHudScreen
 import org.koin.compose.KoinContext
@@ -134,10 +134,10 @@ fun awareFeatures(): List<Feature> = listOf(
     ),
     Feature(
         id = "tilt",
-        title = "Tilt parallax",
-        tagline = "A hero card that leans as you tilt the phone.",
-        signals = "GYROSCOPE",
-        screen = { onBack -> TiltParallaxScreen(onBack) },
+        title = "Tilt marble",
+        tagline = "Roll a marble around the box by tilting the phone.",
+        signals = "ACCELEROMETER",
+        screen = { onBack -> MarbleScreen(onBack) },
     ),
     Feature(
         id = "rotate",
