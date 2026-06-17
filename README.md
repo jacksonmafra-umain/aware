@@ -60,9 +60,10 @@ an architecture.
 
 ## KSensor, the library this is demoing
 
-`io.github.shadadman:KSensor:3.80.0` — a Kotlin Multiplatform library that hands you live sensor and
-device-state data on Android and iOS. Its documentation is, generously, aspirational, so here's the
-part that actually matters.
+ KSensor a Kotlin Multiplatform library (`io.github.shadadman:KSensor:3.80.0`) that hands you live sensor and
+device-state data on Android and iOS. 
+ 
+Its documentation is, generously, aspirational, so here's the part that actually matters.
 
 Add it to your `commonMain`:
 
@@ -71,7 +72,9 @@ implementation("io.github.shadadman:KSensor:3.80.0")
 ```
 
 Mind the package. The Maven coordinate says `shadadman`; the classes live under `org.kmp.ksensor`
-(`.sensor`, `.state`, `.permission`). The two have nothing to do with each other, naturally.
+(`.sensor`, `.state`, `.permission`). 
+
+The two have nothing to do with each other, naturally.
 
 **Sensors**
 
