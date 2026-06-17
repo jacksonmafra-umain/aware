@@ -1,20 +1,10 @@
 package com.umain.aware.core
 
 // ─── CENTRALISED KSENSOR IMPORT (see KSensorSource.kt for the rationale) ─────────────────────
-import io.github.shadadman.ksensor.KState
-import io.github.shadadman.ksensor.StateType as KStateType
-import io.github.shadadman.ksensor.StateUpdate as KStateUpdate
-import io.github.shadadman.ksensor.AppVisibilityStatus
-import io.github.shadadman.ksensor.LocationStatus
-import io.github.shadadman.ksensor.ScreenStatus
-import io.github.shadadman.ksensor.LockStatus
-import io.github.shadadman.ksensor.CurrentActiveNetwork
-import io.github.shadadman.ksensor.ConnectivityStatus
-import io.github.shadadman.ksensor.VolumeStatus
-import io.github.shadadman.ksensor.LocaleInfo
-import io.github.shadadman.ksensor.BatteryStatus
-import io.github.shadadman.ksensor.BleConnectionStatus
-import io.github.shadadman.ksensor.BleDiscoversStatus
+import org.kmp.ksensor.state.KState
+import org.kmp.ksensor.state.StateData
+import org.kmp.ksensor.state.StateType as KStateType
+import org.kmp.ksensor.state.StateUpdate as KStateUpdate
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -41,7 +31,7 @@ private fun StateType.toKState(): KStateType = when (this) {
     StateType.CONNECTIVITY -> KStateType.CONNECTIVITY
     StateType.ACTIVE_NETWORK -> KStateType.ACTIVE_NETWORK
     StateType.LOCATION -> KStateType.LOCATION
-    StateType.SCREEN_STATE -> KStateType.SCREEN_STATE
+    StateType.SCREEN_STATE -> KStateType.SCREEN
     StateType.VOLUME -> KStateType.VOLUME
     StateType.LOCALE -> KStateType.LOCALE
     StateType.BATTERY -> KStateType.BATTERY
@@ -52,54 +42,51 @@ private fun StateType.toKState(): KStateType = when (this) {
 
 private fun KStateUpdate.toDomain(): StateUpdate = when (this) {
     is KStateUpdate.Data -> {
-        val reading: StateReading? = when (val d = data) {
-            is AppVisibilityStatus -> StateReading.AppVisibility(d.isAppVisible)
-            is ConnectivityStatus -> StateReading.Connectivity(d.isConnected)
-            is CurrentActiveNetwork -> StateReading.ActiveNetwork(d.activeNetwork.toString())
-            is LocationStatus -> StateReading.LocationStatus(d.isLocationOn)
-            is ScreenStatus -> StateReading.ScreenStatus(d.isScreenOn)
-            is VolumeStatus -> StateReading.Volume(d.volumePercentage)
-            is LocaleInfo -> StateReading.Locale(
+        // StateData is sealed, so this maps exhaustively onto Aware's own StateReading type.
+        val reading: StateReading = when (val d = data) {
+            is StateData.AppVisibilityStatus -> StateReading.AppVisibility(d.isAppVisible)
+            is StateData.ConnectivityStatus -> StateReading.Connectivity(d.isConnected)
+            is StateData.CurrentActiveNetwork -> StateReading.ActiveNetwork(d.activeNetwork.name)
+            is StateData.LocationStatus -> StateReading.LocationStatus(d.isLocationOn)
+            is StateData.ScreenStatus -> StateReading.ScreenStatus(d.isScreenOn)
+            is StateData.VolumeStatus -> StateReading.Volume(d.volumePercentage)
+            is StateData.LocaleStatus -> StateReading.Locale(
                 languageCode = d.languageCode,
                 countryCode = d.countryCode,
                 fullLocale = d.fullLocaleString,
                 displayName = d.displayName,
                 isRtl = d.isRTL,
             )
-            is BatteryStatus -> StateReading.Battery(
+            is StateData.BatteryStatus -> StateReading.Battery(
                 levelPercent = d.levelPercent,
                 charging = d.chargingState.toDomain(),
                 health = d.health?.toDomain(),
                 temperatureC = d.temperatureC,
             )
-            is LockStatus -> StateReading.Lock(d.isDeviceLocked)
-            is BleConnectionStatus -> StateReading.BleConnected(
-                d.connectedDevices.map { StateReading.BleDevice(it.id, it.name) }
-            )
-            is BleDiscoversStatus -> StateReading.BleDiscovered(
-                d.discoveredDevices.map { StateReading.BleDevice(it.id, it.name) }
-            )
-            else -> null
+            is StateData.LockStatus -> StateReading.Lock(d.isDeviceLocked)
+            is StateData.BleConnectionStatus ->
+                StateReading.BleConnected(d.connectedDevices.map { StateReading.BleDevice(it.id, it.name) })
+            is StateData.BleDiscoversStatus ->
+                StateReading.BleDiscovered(d.discoveredDevices.map { StateReading.BleDevice(it.id, it.name) })
         }
-        if (reading != null) StateUpdate.Data(reading, platformType.toString())
-        else StateUpdate.Error("Unmapped KState reading: $data")
+        StateUpdate.Data(reading, platformType.name)
     }
-    is KStateUpdate.Error -> StateUpdate.Error(this.toString())
+    is KStateUpdate.Error -> StateUpdate.Error(exception.message ?: exception.toString())
 }
 
-private fun BatteryStatus.ChargingState.toDomain(): ChargingState = when (this) {
-    BatteryStatus.ChargingState.UNKNOWN -> ChargingState.UNKNOWN
-    BatteryStatus.ChargingState.DISCHARGING -> ChargingState.DISCHARGING
-    BatteryStatus.ChargingState.CHARGING -> ChargingState.CHARGING
-    BatteryStatus.ChargingState.FULL -> ChargingState.FULL
+private fun StateData.BatteryStatus.ChargingState.toDomain(): ChargingState = when (this) {
+    StateData.BatteryStatus.ChargingState.UNKNOWN -> ChargingState.UNKNOWN
+    StateData.BatteryStatus.ChargingState.DISCHARGING -> ChargingState.DISCHARGING
+    StateData.BatteryStatus.ChargingState.CHARGING -> ChargingState.CHARGING
+    StateData.BatteryStatus.ChargingState.FULL -> ChargingState.FULL
 }
 
-private fun BatteryStatus.BatteryHealth.toDomain(): BatteryHealth = when (this) {
-    BatteryStatus.BatteryHealth.UNKNOWN -> BatteryHealth.UNKNOWN
-    BatteryStatus.BatteryHealth.GOOD -> BatteryHealth.GOOD
-    BatteryStatus.BatteryHealth.OVERHEAT -> BatteryHealth.OVERHEAT
-    BatteryStatus.BatteryHealth.DEAD -> BatteryHealth.DEAD
-    BatteryStatus.BatteryHealth.OVER_VOLTAGE -> BatteryHealth.OVER_VOLTAGE
-    BatteryStatus.BatteryHealth.UNSPECIFIED_FAILURE -> BatteryHealth.UNSPECIFIED_FAILURE
-    BatteryStatus.BatteryHealth.COLD -> BatteryHealth.COLD
+private fun StateData.BatteryStatus.BatteryHealth.toDomain(): BatteryHealth = when (this) {
+    StateData.BatteryStatus.BatteryHealth.UNKNOWN -> BatteryHealth.UNKNOWN
+    StateData.BatteryStatus.BatteryHealth.GOOD -> BatteryHealth.GOOD
+    StateData.BatteryStatus.BatteryHealth.OVERHEAT -> BatteryHealth.OVERHEAT
+    StateData.BatteryStatus.BatteryHealth.DEAD -> BatteryHealth.DEAD
+    StateData.BatteryStatus.BatteryHealth.OVER_VOLTAGE -> BatteryHealth.OVER_VOLTAGE
+    StateData.BatteryStatus.BatteryHealth.UNSPECIFIED_FAILURE -> BatteryHealth.UNSPECIFIED_FAILURE
+    StateData.BatteryStatus.BatteryHealth.COLD -> BatteryHealth.COLD
 }

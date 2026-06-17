@@ -1,25 +1,15 @@
 package com.umain.aware.core
 
 // ─── CENTRALISED KSENSOR IMPORT ──────────────────────────────────────────────────────────────
-// KSensor's public type package is NOT documented (see README "KSensor caveats" #1). Every KSensor
-// import lives in this one grouped block (and the equivalent in KStateSource.kt) so that, if the
-// real package turns out to differ, the fix is confined to these lines — nothing else in Aware
-// touches a KSensor type. The two `as K…` aliases resolve the deliberate name overlap between
-// KSensor's types and Aware's same-named core types so both can be referenced unambiguously.
-import io.github.shadadman.ksensor.KSensor
-import io.github.shadadman.ksensor.SensorType as KSensorType
-import io.github.shadadman.ksensor.SensorUpdate as KSensorUpdate
-import io.github.shadadman.ksensor.Accelerometer
-import io.github.shadadman.ksensor.Gyroscope
-import io.github.shadadman.ksensor.Magnetometer
-import io.github.shadadman.ksensor.Barometer
-import io.github.shadadman.ksensor.StepCounter
-import io.github.shadadman.ksensor.StepDetector
-import io.github.shadadman.ksensor.Location
-import io.github.shadadman.ksensor.Orientation
-import io.github.shadadman.ksensor.Proximity
-import io.github.shadadman.ksensor.LightIlluminance
-import io.github.shadadman.ksensor.TouchGestures
+// Every KSensor import lives in this one grouped block (and the equivalents in KStateSource.kt and
+// LocationPermission.kt) so the library stays an implementation detail (DIP). The public types live
+// under org.kmp.ksensor.* (the Maven coordinate io.github.shadadman:KSensor is unrelated to the
+// package name). The two `as K…` aliases resolve the deliberate name overlap with Aware's own
+// same-named core types.
+import org.kmp.ksensor.sensor.KSensor
+import org.kmp.ksensor.sensor.SensorData
+import org.kmp.ksensor.sensor.SensorType as KSensorType
+import org.kmp.ksensor.sensor.SensorUpdate as KSensorUpdate
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -61,26 +51,21 @@ private fun SensorType.toKSensor(): KSensorType = when (this) {
 
 private fun KSensorUpdate.toDomain(): SensorUpdate = when (this) {
     is KSensorUpdate.Data -> {
-        val reading: Reading? = when (val d = data) {
-            is Accelerometer -> Reading.Accelerometer(d.x, d.y, d.z)
-            is Gyroscope -> Reading.Gyroscope(d.x, d.y, d.z)
-            is Magnetometer -> Reading.Magnetometer(d.x, d.y, d.z)
-            is Barometer -> Reading.Barometer(d.pressure)
-            is StepCounter -> Reading.StepCount(d.steps)
-            is StepDetector -> Reading.StepTick
-            is Location -> Reading.Location(d.lat, d.lon, d.alt)
-            is Orientation -> Reading.Orientation(d.orientation.toString(), d.orientationInt)
-            is Proximity -> Reading.Proximity(d.distanceInCM, d.isNear)
-            is LightIlluminance -> Reading.Light(d.illuminance)
-            is TouchGestures -> Reading.Touch(d.x, d.y, d.type.toString())
-            else -> null
+        // SensorData is sealed, so this maps exhaustively onto Aware's own Reading type.
+        val reading: Reading = when (val d = data) {
+            is SensorData.Accelerometer -> Reading.Accelerometer(d.x, d.y, d.z)
+            is SensorData.Gyroscope -> Reading.Gyroscope(d.x, d.y, d.z)
+            is SensorData.Magnetometer -> Reading.Magnetometer(d.x, d.y, d.z)
+            is SensorData.Barometer -> Reading.Barometer(d.pressure)
+            is SensorData.StepCounter -> Reading.StepCount(d.steps)
+            SensorData.StepDetector -> Reading.StepTick
+            is SensorData.Location -> Reading.Location(d.latitude, d.longitude, d.altitude)
+            is SensorData.Orientation -> Reading.Orientation(d.orientation.name, d.orientationInt)
+            is SensorData.Proximity -> Reading.Proximity(d.distanceInCM, d.isNear)
+            is SensorData.LightIlluminance -> Reading.Light(d.illuminance)
+            is SensorData.TouchGestures -> Reading.Touch(d.x, d.y, d.type.name)
         }
-        if (reading != null) {
-            SensorUpdate.Data(reading, platformType.toString(), timestamp)
-        } else {
-            SensorUpdate.Error("Unmapped KSensor reading: $data")
-        }
+        SensorUpdate.Data(reading, platformType.name, timestamp)
     }
-    // Error field shape is undocumented (caveat #2): forward toString() as a generic message.
-    is KSensorUpdate.Error -> SensorUpdate.Error(this.toString())
+    is KSensorUpdate.Error -> SensorUpdate.Error(exception.message ?: exception.toString())
 }

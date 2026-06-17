@@ -91,23 +91,28 @@ are not unit-tested. `SourceLifecycleTest` covers the source lifecycle via the f
 
 A few things about the library are worth recording, because they shaped the code:
 
-1. **Coordinates.** The dependency is `io.github.shadadman:KSensor:3.80.0` (GitHub user `ShadAdman`).
-   Note there is an older, similarly-named publication, `io.github.shadmanadman:KSensor` (latest
-   `3.60.0`), with a slightly different permission API — Aware uses the `shadadman` `3.80.0`
-   artifact, which matches this project's spec (Kotlin 2.2, `AskPermission(PermissionType.LOCATION)`,
-   `timestamp` on updates, and the BLE state types).
+1. **The Maven coordinate and the Kotlin package are unrelated.** The dependency is
+   `io.github.shadadman:KSensor:3.80.0` (GitHub user `ShadAdman`), but the public types live under
+   the package root **`org.kmp.ksensor`** — split into `org.kmp.ksensor.sensor`,
+   `org.kmp.ksensor.state`, and `org.kmp.ksensor.permission`. (There is also an older, similarly
+   named publication, `io.github.shadmanadman:KSensor`, which is a different artifact — Aware uses
+   `shadadman` `3.80.0`.) Because the package isn't obvious from the coordinate, every KSensor
+   import is confined to exactly three files — `core/KSensorSource.kt`, `core/KStateSource.kt`, and
+   `core/LocationPermission.kt`, each behind a clearly marked import block. Nothing else in the app
+   references a KSensor type, because the wrappers map the library's models onto Aware's own
+   `Reading` / `StateReading` domain types.
 
-2. **The package of the public types is not documented.** Every KSensor import is therefore confined
-   to exactly three files — `core/KSensorSource.kt`, `core/KStateSource.kt`, and
-   `core/LocationPermission.kt` — each behind a clearly marked import block. If the real package
-   differs from the assumed `io.github.shadadman.ksensor`, the fix is those import lines only;
-   nothing else in the app references a KSensor type, because the wrappers map the library's models
-   onto Aware's own `Reading` / `StateReading` domain types.
+2. **The data models are nested, and a few names differ from the README.** Sensor/state payloads are
+   nested in sealed classes (`SensorData.Accelerometer`, `StateData.BatteryStatus`, …), `Location`
+   exposes `latitude/longitude/altitude`, the screen-state enum constant is `StateType.SCREEN`, the
+   locale model is `StateData.LocaleStatus`, and `PermissionStatus` is an enum with `GRANTED` /
+   `DENIED` / `SHOW_RATIONAL` / `UNKNOWN`. The wrappers absorb all of this so the rest of the app
+   only ever sees Aware's domain types.
 
-3. **The `*.Error` field shape is not documented.** Errors are routed through the source layer as a
-   generic, already-stringified message (`update.toString()`) and surfaced as `SensorUpdate.Error` /
-   `StateUpdate.Error`. Screens may ignore them, but the abstraction does not pretend errors don't
-   happen.
+3. **The `*.Error` shape.** `SensorUpdate.Error` / `StateUpdate.Error` each carry a single
+   `exception: Exception`. The source layer forwards `exception.message` as a generic
+   `SensorUpdate.Error` / `StateUpdate.Error` message. Screens may ignore them, but the abstraction
+   does not pretend errors don't happen.
 
 ## Building
 
