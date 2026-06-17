@@ -36,6 +36,7 @@ import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
 import com.umain.aware.feature.tilt.TiltParallaxScreen
 import com.umain.aware.feature.trip.TripTrackerScreen
+import com.umain.aware.feature.volume.VolumeHudScreen
 import org.koin.compose.KoinContext
 
 /**
@@ -153,6 +154,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Draws your strokes from the touch-gesture stream.",
         signals = "TOUCH_GESTURES",
         screen = { onBack -> SignaturePadScreen(onBack) },
+    ),
+    Feature(
+        id = "volume",
+        title = "Volume HUD",
+        tagline = "A custom volume bar with a 'too loud' warning.",
+        signals = "VOLUME",
+        screen = { onBack -> VolumeHudScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
