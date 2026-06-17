@@ -31,6 +31,7 @@ import com.umain.aware.feature.network.SmartDownloadScreen
 import com.umain.aware.feature.privacy.PrivacyShieldScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
+import com.umain.aware.feature.tilt.TiltParallaxScreen
 import com.umain.aware.feature.trip.TripTrackerScreen
 import org.koin.compose.KoinContext
 
@@ -121,6 +122,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Currency symbol and text direction follow the device region.",
         signals = "LOCALE",
         screen = { onBack -> LocaleAdaptScreen(onBack) },
+    ),
+    Feature(
+        id = "tilt",
+        title = "Tilt parallax",
+        tagline = "A hero card that leans as you tilt the phone.",
+        signals = "GYROSCOPE",
+        screen = { onBack -> TiltParallaxScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
