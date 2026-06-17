@@ -45,4 +45,34 @@ class HeadingTest {
         val next = Heading.smoothedTowards(current = 0f, target = 100f, alpha = 0.25f)
         assertEquals(25f, next, absoluteTolerance = 0.01f)
     }
+
+    @Test
+    fun tilt_compensated_flat_device_reads_field_direction_as_heading() {
+        val g = 9.81f // gravity on +z (device flat, face up)
+        // Field pointing to the device's top (+y) => facing north => 0°.
+        assertDeg(0f, Heading.tiltCompensated(0f, 0f, g, 0f, 30f, 0f)!!)
+        // Field to the right (+x) => north is to the right => facing west => 270°.
+        assertDeg(270f, Heading.tiltCompensated(0f, 0f, g, 30f, 0f, 0f)!!)
+        // Field to the bottom (-y) => facing south => 180°.
+        assertDeg(180f, Heading.tiltCompensated(0f, 0f, g, 0f, -30f, 0f)!!)
+        // Field to the left (-x) => 90°.
+        assertDeg(90f, Heading.tiltCompensated(0f, 0f, g, -30f, 0f, 0f)!!)
+    }
+
+    @Test
+    fun tilt_compensated_is_stable_when_pitched() {
+        // Facing north: gravity on +z, field with north (+y) and downward (-z) components.
+        val flat = Heading.tiltCompensated(0f, 0f, 9.81f, 0f, 20f, -40f)!!
+        // Pitch the whole device forward 45° about its x-axis: rotate BOTH vectors the same way.
+        val pitched = Heading.tiltCompensated(0f, -6.937f, 6.937f, 0f, 42.43f, -14.14f)!!
+        assertDeg(0f, flat)
+        // Heading stays ~north despite the pitch (raw atan2 would swing wildly).
+        val delta = kotlin.math.abs(((pitched - flat + 540f) % 360f) - 180f)
+        assertEquals(true, delta < 5f, "pitch changed heading by $delta°")
+    }
+
+    @Test
+    fun tilt_compensated_returns_null_in_free_fall() {
+        assertEquals(null, Heading.tiltCompensated(0f, 0f, 0f, 0f, 30f, 0f))
+    }
 }

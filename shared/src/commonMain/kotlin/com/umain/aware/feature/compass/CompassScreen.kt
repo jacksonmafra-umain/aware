@@ -39,19 +39,33 @@ import kotlin.math.sin
 @Composable
 fun CompassScreen(onBack: () -> Unit) {
     val source = koinInject<SensorSource>()
-    val types = remember { listOf(SensorType.MAGNETOMETER) }
+    // Accelerometer + magnetometer: a true tilt-compensated heading needs both.
+    val types = remember { listOf(SensorType.ACCELEROMETER, SensorType.MAGNETOMETER) }
 
     var heading by remember { mutableStateOf(0f) }
     var platform by remember { mutableStateOf<String?>(null) }
+    // Latest gravity sample; the heading is recomputed whenever the magnetometer updates.
+    val gravity = remember { floatArrayOf(0f, 0f, 0f) }
+    var haveGravity by remember { mutableStateOf(false) }
 
     CollectSensors(source, types) { update ->
         when (update) {
             is SensorUpdate.Data -> {
                 platform = update.platform
-                val r = update.reading
-                if (r is Reading.Magnetometer) {
-                    val target = Heading.fromMagnetometer(r.x, r.y)
-                    heading = Heading.smoothedTowards(heading, target, alpha = 0.15f)
+                when (val r = update.reading) {
+                    is Reading.Accelerometer -> {
+                        gravity[0] = r.x; gravity[1] = r.y; gravity[2] = r.z
+                        haveGravity = true
+                    }
+                    is Reading.Magnetometer -> if (haveGravity) {
+                        val target = Heading.tiltCompensated(
+                            gravity[0], gravity[1], gravity[2], r.x, r.y, r.z,
+                        )
+                        if (target != null) {
+                            heading = Heading.smoothedTowards(heading, target, alpha = 0.15f)
+                        }
+                    }
+                    else -> Unit
                 }
             }
             is SensorUpdate.Error -> Unit
