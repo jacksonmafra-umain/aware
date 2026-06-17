@@ -28,6 +28,7 @@ import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.light.AutoDarkModeScreen
 import com.umain.aware.feature.locale.LocaleAdaptScreen
 import com.umain.aware.feature.network.SmartDownloadScreen
+import com.umain.aware.feature.pad.SignaturePadScreen
 import com.umain.aware.feature.pocket.PocketModeScreen
 import com.umain.aware.feature.privacy.PrivacyShieldScreen
 import com.umain.aware.feature.rotate.AutoRotateScreen
@@ -145,6 +146,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Pauses playback when something covers the sensor.",
         signals = "PROXIMITY",
         screen = { onBack -> PocketModeScreen(onBack) },
+    ),
+    Feature(
+        id = "pad",
+        title = "Signature pad",
+        tagline = "Draws your strokes from the touch-gesture stream.",
+        signals = "TOUCH_GESTURES",
+        screen = { onBack -> SignaturePadScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
