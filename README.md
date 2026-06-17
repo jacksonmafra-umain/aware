@@ -58,6 +58,61 @@ an architecture.
 - **Nearby devices** — Bluetooth. Lists devices connected versus merely in range. A "find my
   headphones" that still won't find the one that's under the sofa.
 
+## KSensor, the library this is demoing
+
+`io.github.shadadman:KSensor:3.80.0` — a Kotlin Multiplatform library that hands you live sensor and
+device-state data on Android and iOS. Its documentation is, generously, aspirational, so here's the
+part that actually matters.
+
+Add it to your `commonMain`:
+
+```kotlin
+implementation("io.github.shadadman:KSensor:3.80.0")
+```
+
+Mind the package. The Maven coordinate says `shadadman`; the classes live under `org.kmp.ksensor`
+(`.sensor`, `.state`, `.permission`). The two have nothing to do with each other, naturally.
+
+**Sensors**
+
+```kotlin
+KSensor.registerSensors(types, locationIntervalMillis = 1000L) // Flow<SensorUpdate>
+KSensor.unregisterSensors(types)
+KSensor.AskPermission(PermissionType.LOCATION) { status -> }    // @Composable
+```
+
+`SensorType`: ACCELEROMETER, GYROSCOPE, MAGNETOMETER, BAROMETER, STEP_COUNTER, STEP_DETECTOR,
+LOCATION, DEVICE_ORIENTATION, PROXIMITY, LIGHT, TOUCH_GESTURES. Each emission is a
+`SensorUpdate.Data(type, data, platformType, timestamp)` or a `SensorUpdate.Error(exception)`, where
+`data` is nested in `SensorData` (e.g. `SensorData.Accelerometer`).
+
+**States**
+
+```kotlin
+KState.addObserver(types) // Flow<StateUpdate>
+KState.removeObserver(types)
+```
+
+`StateType`: SCREEN, APP_VISIBILITY, CONNECTIVITY, ACTIVE_NETWORK, LOCATION, VOLUME, LOCALE, BATTERY,
+LOCK, BLE_CONNECTIONS, BLE_DISCOVERS. Emissions are `StateUpdate.Data(type, data, platformType)` or
+`StateUpdate.Error(exception)`, with payloads nested in `StateData`. `PermissionStatus` is an enum:
+GRANTED, DENIED, SHOW_RATIONAL, UNKNOWN.
+
+**Things it won't tell you itself, learned the hard way (all true as of 3.80.0)**
+
+- The Android accelerometer is divided by the sensor's maximum range, so the values aren't m/s², just
+  a fraction of it. Use the direction, not the magnitude — see the Tilt marble.
+- `VolumeStatus.volumePercentage` is the raw stream index, roughly 0–15, not a percentage. The field
+  name is a work of fiction.
+- Subscribing to more than one `StateType` in a single `addObserver` call crashes: it runs
+  `awaitClose` once per type. Observe one at a time and merge.
+- `TOUCH_GESTURES` emits nothing. The library never initialises its touch monitor, and the class is
+  `internal`, so neither can you. The Signature pad falls back to Compose's own touch input.
+- It requests no permissions for you. CONNECTIVITY/ACTIVE_NETWORK need `ACCESS_NETWORK_STATE`,
+  STEP_COUNTER needs `ACTIVITY_RECOGNITION`, and BLE needs the runtime Bluetooth permissions.
+
+If a future version fixes any of that, the list above doubles as your migration guide.
+
 ## Running it
 
 - Android: `./gradlew :androidApp:assembleDebug`
