@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
+import com.umain.aware.feature.light.AutoDarkModeScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
 import com.umain.aware.feature.trip.TripTrackerScreen
@@ -81,6 +82,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Adds up distance travelled between GPS fixes.",
         signals = "LOCATION sensor + state",
         screen = { onBack -> TripTrackerScreen(onBack) },
+    ),
+    Feature(
+        id = "light",
+        title = "Auto dark mode",
+        tagline = "Dims the page when the room gets dark.",
+        signals = "LIGHT",
+        screen = { onBack -> AutoDarkModeScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
