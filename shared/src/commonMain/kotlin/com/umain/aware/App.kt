@@ -27,6 +27,7 @@ import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.light.AutoDarkModeScreen
 import com.umain.aware.feature.network.SmartDownloadScreen
+import com.umain.aware.feature.privacy.PrivacyShieldScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
 import com.umain.aware.feature.trip.TripTrackerScreen
@@ -105,6 +106,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Saver below 20%, sync while charging, overheat warning.",
         signals = "BATTERY",
         screen = { onBack -> BatterySaverScreen(onBack) },
+    ),
+    Feature(
+        id = "privacy",
+        title = "Privacy shield",
+        tagline = "Hides your balance when the app isn't front-and-centre.",
+        signals = "APP_VISIBILITY + LOCK + SCREEN_STATE",
+        screen = { onBack -> PrivacyShieldScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
