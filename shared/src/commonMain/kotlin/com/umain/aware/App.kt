@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -185,12 +186,15 @@ fun awareFeatures(): List<Feature> = listOf(
 fun App() {
     MaterialTheme {
         KoinContext {
-            var selected by remember { mutableStateOf<Feature?>(null) }
             val features = remember { awareFeatures() }
+            // Persist navigation by id (not the Feature, which holds a lambda) so it survives
+            // configuration changes such as rotation — the Auto-rotate demo would otherwise drop
+            // back to the gallery whenever the device turned.
+            var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
 
-            when (val current = selected) {
-                null -> Gallery(features = features, onOpen = { selected = it })
-                else -> current.screen { selected = null }
+            when (val current = features.firstOrNull { it.id == selectedId }) {
+                null -> Gallery(features = features, onOpen = { selectedId = it.id })
+                else -> current.screen { selectedId = null }
             }
         }
     }
