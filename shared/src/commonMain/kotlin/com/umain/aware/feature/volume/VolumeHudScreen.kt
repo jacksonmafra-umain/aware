@@ -26,34 +26,42 @@ import com.umain.aware.core.StateUpdate
 import org.koin.compose.koinInject
 
 /**
- * Volume HUD: a custom overlay bar that tracks the system volume, with a "too loud" hint once it
- * passes 80% — the kind of hearing-safety nudge media apps show.
+ * Volume HUD: a custom overlay bar that tracks the system volume, with a "too loud" hint past 80%.
+ *
+ * KSensor reports the raw STREAM_MUSIC index (e.g. 7), not a percentage, and doesn't expose the
+ * stream maximum. Most devices use a max of 15, but some use more, so we normalise against
+ * `max(15, highest value seen)` — which self-corrects upward as the user reaches their device's
+ * real maximum.
  */
 @Composable
 fun VolumeHudScreen(onBack: () -> Unit) {
     val source = koinInject<StateSource>()
     val types = remember { listOf(StateType.VOLUME) }
 
-    var percent by remember { mutableStateOf(0) }
+    var level by remember { mutableStateOf(0) }
+    var maxLevel by remember { mutableStateOf(15) }
     var platform by remember { mutableStateOf<String?>(null) }
 
     CollectStates(source, types) { update ->
         if (update is StateUpdate.Data) {
             platform = update.platform
             val r = update.reading
-            if (r is StateReading.Volume) percent = r.percent
+            if (r is StateReading.Volume) {
+                level = r.percent
+                if (r.percent > maxLevel) maxLevel = r.percent
+            }
         }
     }
 
+    val percent = if (maxLevel > 0) (level * 100 / maxLevel).coerceIn(0, 100) else 0
+    val fill = (level.toFloat() / maxLevel).coerceIn(0f, 1f)
     val tooLoud = percent > 80
-    val fill = (percent.coerceIn(0, 100)) / 100f
     val barColor = if (tooLoud) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
 
     FeatureScaffold("Volume HUD", platform, onBack) {
         MetricCard {
-            MetricText("$percent%", "system volume")
-            // Custom HUD bar.
+            MetricText("$percent%", "system volume (level $level of $maxLevel)")
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
