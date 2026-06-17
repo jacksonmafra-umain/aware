@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ElevatedCard
@@ -24,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -202,19 +199,16 @@ fun App() {
 @Composable
 private fun Gallery(features: List<Feature>, onOpen: (Feature) -> Unit) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        // Edge-to-edge: the list draws behind the status/navigation bars, but its content is
-        // inset by the system bars (and display cutout / iOS safe area) so nothing is clipped.
-        val insets = WindowInsets.safeDrawing.asPaddingValues()
-        val layoutDirection = LocalLayoutDirection.current
+        // The Surface paints edge-to-edge (so the bars get the app background), but the list is
+        // bounded to the safe area via windowInsetsPadding, so no card ever scrolls under the
+        // status or navigation bar (or a display cutout / iOS notch).
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(
-                start = 16.dp + insets.calculateStartPadding(layoutDirection),
-                end = 16.dp + insets.calculateEndPadding(layoutDirection),
-                top = 24.dp + insets.calculateTopPadding(),
-                bottom = 24.dp + insets.calculateBottomPadding(),
-            ),
+            contentPadding = PaddingValues(vertical = 24.dp),
         ) {
             item {
                 Column(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
