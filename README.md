@@ -123,3 +123,18 @@ If a future version fixes any of that, the list above doubles as your migration 
 
 Use a real device for most of this. Emulators have no barometer, cannot be shaken, and have never
 climbed a flight of stairs in their lives.
+
+## Credits
+
+KSensor — the library doing the actual sensing — is by
+[Shadman Adman](https://github.com/ShadAdman/KSensor), and is licensed 0BSD, which is about as
+permissive as a license gets before it's just a sticky note reading "do whatever." Quirks aside, it
+saved writing a great deal of platform glue, twice.
+
+Aware was made with love and tokens by [Jackson Mafra](https://github.com/jacksonmafra-umain). Source
+lives at <https://github.com/jacksonmafra-umain/aware>.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Do what you like with it; just don't come back when the marble rolls
+the wrong way.
