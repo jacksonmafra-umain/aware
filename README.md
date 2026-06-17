@@ -8,11 +8,11 @@ you've managed today.
 Android and iOS from a single codebase, because writing the whole thing twice is a punishment, not
 an architecture.
 
-<img width="480" alt="image" src="https://github.com/user-attachments/assets/a793c554-b2d8-46da-b8eb-a1a428995f5f" />
+<img width="480" alt="image" src="https://github.com/user-attachments/assets/a793c554-b2d8-46da-b8eb-a1a428995f5f" /> <br/>
 
-<img width="480" alt="image" src="https://github.com/user-attachments/assets/42fe6bf7-0fd5-4b9e-a01e-5a212d8a437f" />
+<img width="480" alt="image" src="https://github.com/user-attachments/assets/42fe6bf7-0fd5-4b9e-a01e-5a212d8a437f" /> <br/>
 
-<img width="480" alt="image" src="https://github.com/user-attachments/assets/0d87b0d6-1dfd-4952-b9dd-2b17f4344175" />
+<img width="480" alt="image" src="https://github.com/user-attachments/assets/0d87b0d6-1dfd-4952-b9dd-2b17f4344175" /> <br/>
 
 
 ## The demos
