@@ -26,6 +26,7 @@ import com.umain.aware.feature.battery.BatterySaverScreen
 import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.light.AutoDarkModeScreen
+import com.umain.aware.feature.locale.LocaleAdaptScreen
 import com.umain.aware.feature.network.SmartDownloadScreen
 import com.umain.aware.feature.privacy.PrivacyShieldScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
@@ -113,6 +114,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Hides your balance when the app isn't front-and-centre.",
         signals = "APP_VISIBILITY + LOCK + SCREEN_STATE",
         screen = { onBack -> PrivacyShieldScreen(onBack) },
+    ),
+    Feature(
+        id = "locale",
+        title = "Locale adapt",
+        tagline = "Currency symbol and text direction follow the device region.",
+        signals = "LOCALE",
+        screen = { onBack -> LocaleAdaptScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
