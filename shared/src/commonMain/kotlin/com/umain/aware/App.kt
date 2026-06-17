@@ -26,6 +26,7 @@ import com.umain.aware.feature.compass.CompassScreen
 import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
 import com.umain.aware.feature.steps.StepGoalScreen
+import com.umain.aware.feature.trip.TripTrackerScreen
 import org.koin.compose.KoinContext
 
 /**
@@ -73,6 +74,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "A needle that points to magnetic north.",
         signals = "MAGNETOMETER",
         screen = { onBack -> CompassScreen(onBack) },
+    ),
+    Feature(
+        id = "trip",
+        title = "Trip tracker",
+        tagline = "Adds up distance travelled between GPS fixes.",
+        signals = "LOCATION sensor + state",
+        screen = { onBack -> TripTrackerScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
