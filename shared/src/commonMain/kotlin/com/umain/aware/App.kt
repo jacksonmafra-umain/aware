@@ -28,6 +28,7 @@ import com.umain.aware.feature.floors.FloorClimbScreen
 import com.umain.aware.feature.light.AutoDarkModeScreen
 import com.umain.aware.feature.locale.LocaleAdaptScreen
 import com.umain.aware.feature.network.SmartDownloadScreen
+import com.umain.aware.feature.pocket.PocketModeScreen
 import com.umain.aware.feature.privacy.PrivacyShieldScreen
 import com.umain.aware.feature.rotate.AutoRotateScreen
 import com.umain.aware.feature.shake.ShakeToReportScreen
@@ -137,6 +138,13 @@ fun awareFeatures(): List<Feature> = listOf(
         tagline = "Goes fullscreen in landscape, inline in portrait.",
         signals = "DEVICE_ORIENTATION",
         screen = { onBack -> AutoRotateScreen(onBack) },
+    ),
+    Feature(
+        id = "pocket",
+        title = "Pocket mode",
+        tagline = "Pauses playback when something covers the sensor.",
+        signals = "PROXIMITY",
+        screen = { onBack -> PocketModeScreen(onBack) },
     ),
     // feature entries are registered here, one per feature.
 )
