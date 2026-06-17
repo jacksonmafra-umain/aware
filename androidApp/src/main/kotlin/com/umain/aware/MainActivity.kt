@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        requestActivityRecognitionIfNeeded()
+        requestRuntimePermissions()
 
         setContent {
             App()
@@ -23,16 +23,26 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * The hardware step counter requires ACTIVITY_RECOGNITION at runtime on Android 10+; KSensor
-     * doesn't request it, so the Daily step goal demo gets no events without this.
+     * KSensor declares no runtime permissions, so we request the ones its sensors/states need:
+     * ACTIVITY_RECOGNITION for the step counter (API 29+), and BLUETOOTH_SCAN / BLUETOOTH_CONNECT for
+     * the Nearby devices BLE scan and connection query (API 31+). Location for the Trip tracker is
+     * handled separately by KSensor's own AskPermission composable.
      */
-    private fun requestActivityRecognitionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val granted = checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) ==
-                PackageManager.PERMISSION_GRANTED
-            if (!granted) {
-                requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
+    private fun requestRuntimePermissions() {
+        val wanted = buildList {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                add(Manifest.permission.ACTIVITY_RECOGNITION)
             }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                add(Manifest.permission.BLUETOOTH_SCAN)
+                add(Manifest.permission.BLUETOOTH_CONNECT)
+            }
+        }
+        val missing = wanted.filter {
+            checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isNotEmpty()) {
+            requestPermissions(missing.toTypedArray(), 1)
         }
     }
 }
