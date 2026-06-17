@@ -105,8 +105,9 @@ GRANTED, DENIED, SHOW_RATIONAL, UNKNOWN.
 
 - The Android accelerometer is divided by the sensor's maximum range, so the values aren't m/s², just
   a fraction of it. Use the direction, not the magnitude — see the Tilt marble.
-- `VolumeStatus.volumePercentage` is the raw stream index, roughly 0–15, not a percentage. The field
-  name is a work of fiction.
+- `VolumeStatus.volumePercentage` means different things per platform: a real 0–100 percentage on
+  iOS, but the raw STREAM_MUSIC index (roughly 0–15) on Android. The field name is, at best, half a
+  fact. Aware interprets it per platform.
 - Subscribing to more than one `StateType` in a single `addObserver` call crashes: it runs
   `awaitClose` once per type. Observe one at a time and merge.
 - `TOUCH_GESTURES` emits nothing. The library never initialises its touch monitor, and the class is

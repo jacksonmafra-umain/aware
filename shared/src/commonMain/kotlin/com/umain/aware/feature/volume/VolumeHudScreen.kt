@@ -28,18 +28,18 @@ import org.koin.compose.koinInject
 /**
  * Volume HUD: a custom overlay bar that tracks the system volume, with a "too loud" hint past 80%.
  *
- * KSensor reports the raw STREAM_MUSIC index (e.g. 7), not a percentage, and doesn't expose the
- * stream maximum. Most devices use a max of 15, but some use more, so we normalise against
- * `max(15, highest value seen)` — which self-corrects upward as the user reaches their device's
- * real maximum.
+ * KSensor reports volume inconsistently across platforms: on iOS the value is already a 0–100
+ * percentage, while on Android it's the raw STREAM_MUSIC index (e.g. 7 of ~15) with no maximum
+ * exposed. So we interpret it per platform — iOS as a percentage, Android normalised against the
+ * largest index seen (floored at 15) — to get a comparable percentage on both.
  */
 @Composable
 fun VolumeHudScreen(onBack: () -> Unit) {
     val source = koinInject<StateSource>()
     val types = remember { listOf(StateType.VOLUME) }
 
-    var level by remember { mutableStateOf(0) }
-    var maxLevel by remember { mutableStateOf(15) }
+    var raw by remember { mutableStateOf(0) }
+    var maxIndex by remember { mutableStateOf(15) }
     var platform by remember { mutableStateOf<String?>(null) }
 
     CollectStates(source, types) { update ->
@@ -47,21 +47,26 @@ fun VolumeHudScreen(onBack: () -> Unit) {
             platform = update.platform
             val r = update.reading
             if (r is StateReading.Volume) {
-                level = r.percent
-                if (r.percent > maxLevel) maxLevel = r.percent
+                raw = r.percent
+                if (r.percent > maxIndex) maxIndex = r.percent
             }
         }
     }
 
-    val percent = if (maxLevel > 0) (level * 100 / maxLevel).coerceIn(0, 100) else 0
-    val fill = (level.toFloat() / maxLevel).coerceIn(0f, 1f)
+    val isIos = platform?.contains("ios", ignoreCase = true) == true
+    val percent = if (isIos) {
+        raw.coerceIn(0, 100)
+    } else {
+        (raw * 100 / maxIndex.coerceAtLeast(1)).coerceIn(0, 100)
+    }
+    val fill = percent / 100f
     val tooLoud = percent > 80
     val barColor = if (tooLoud) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
 
     FeatureScaffold("Volume HUD", platform, onBack) {
         MetricCard {
-            MetricText("$percent%", "system volume (level $level of $maxLevel)")
+            MetricText("$percent%", "system volume")
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
